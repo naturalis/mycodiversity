@@ -180,7 +180,7 @@ rule filter_contamination_filter:
     log:
         '{outdir}/log/contamination/{sample}_error.log'
     shell:
-        "bash excludeContamination.sh {input} {wildcards.sample}_blast.txt {output}"
+        "bash excludeContamination.sh {input} {outdir}/BLAST/{wildcards.sample}_blast.txt {output}"
 
 
 rule filter_zotutab:
