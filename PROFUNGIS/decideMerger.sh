@@ -71,8 +71,7 @@ fi
 #echo "${pairdiff}, ${filterflag}, ${mergeflag}, ${mergefilterflag}, ${mergefilterflag2}"
 decision=$((${pairdiff}+${filterflag}+${mergeflag}+${mergefilterflag}+${mergefilterflag2}))
 if [ ${decision} -gt 2 ]; then
-#echo "FWD"
-echo "MERGE"
+echo "FWD"
 else echo "MERGE"
 fi
 
