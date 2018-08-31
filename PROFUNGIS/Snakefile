@@ -79,28 +79,29 @@ rule merge_reads:
 
 
 ### Rule creates the USEARCH Estimated Errorr report ###
-rule calculate_EE:
-    input:
-        "{outdir}/merged/{sample}_merged_reads.fq"
-    output:
-        "{outdir}/qual_filter/{sample}_EE_report.txt"
-    log:
-        "{outdir}/log/qual_filter/{sample}_EE_error.log"
-    shell:
-        "./deps/usearch11 -fastx_info {input} -output {output} 2>{log}"
+#rule calculate_EE:
+#    input:
+#        "{outdir}/merged/{sample}_merged_reads.fq"
+#    output:
+#        "{outdir}/qual_filter/{sample}_EE_report.txt"
+#    log:
+#        "{outdir}/log/qual_filter/{sample}_EE_error.log"
+#    shell:
+#        "./deps/usearch11 -fastx_info {input} -output {output} 2>{log}"
 
 ### Rule checks if the user provided an EE threshold, if not it uses the mean value ###
 ### calculated by the previous rule ###
+### Old: report="{outdir}/qual_filter/{sample}_EE_report.txt" ###
+### functions.determineEE(wildcards,config) ###
 rule qual_filter:
     input:
         reads="{outdir}/merged/{sample}_merged_reads.fq",
-        report="{outdir}/qual_filter/{sample}_EE_report.txt"
     output:
         "{outdir}/qual_filter/{sample}_filtered_reads.fa"
     log:
         "{outdir}/log/qual_filter/{sample}_error.log"
     run:
-        max_EE = functions.determineEE(wildcards,config)
+        max_EE = 1
         shellstring="./deps/usearch11 -fastq_filter {input.reads} -fastq_maxee %s -fastaout {output} -relabel Filt 2> {log}"%max_EE
         shell(shellstring)
 
