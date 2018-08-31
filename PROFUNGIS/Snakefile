@@ -1,20 +1,15 @@
 import functions
 configfile: "config.yml"
-###TODO ALL###
-# - Add protected and tmp indications
-
 
 ### Rule all creates output files and assigns sample and output directory wildcards ###
 rule all:
     input:
         expand("{outdir}/ZOTUS/{sample}_zotutab.txt", sample=config["samples"], outdir=config["outdir"]),
-        expand("{outdir}/qual_filter/{sample}_EE_report.txt", sample=config["samples"], outdir=config["outdir"]),
         expand("{outdir}/ZOTUS/abundant/{sample}_zotutab_af.txt", sample=config["samples"], outdir=config["outdir"]),
         expand("{outdir}/FINAL/{sample}_zotus_final.fa", sample=config["samples"], outdir=config["outdir"]),
         expand("{outdir}/FINAL/{sample}_zotutab_final.txt", sample=config["samples"], outdir=config["outdir"])
 
 ###  Rule cuts the primers off the reads. If Illumina is used, the rule cuts paired-end. ###
-###  \\TODO: minlen should be implemented, as well as unfiltered deletion ###
 rule filter_primers:
     input:
         lambda wildcards: functions.getReads(config["samples"][wildcards.sample],config["params"]["platform"],1)
@@ -36,7 +31,7 @@ rule filter_primers:
         if params.platform == "illumina":
             shell("cutadapt -g {params.FWD} -a {params.REV_RC} -G {params.REV} -A {params.FWD_RC} -o {output.R1_out} {params.minlen} \
 				  -p {output.R2_out} --discard-untrimmed --pair-filter=both {input} {params.reversereads} 2>{log}")
-        elif str(params.platform) == "454":
+        else:
             shell("cutadapt -g {params.FWD} -a {params.REV_RC} -o {output.R1_out} {params.minlen} {input} 2>{log}")
             shell("touch {output.R2_out}")
 
@@ -49,7 +44,7 @@ rule merge_reads:
     input:
         R1="{outdir}/filtered/{sample}_R1_filt.fastq",
     output:
-        "{outdir}/merged/{sample}_merged_reads.fq"
+        temp("{outdir}/merged/{sample}_merged_reads.fq")
     log:
         "{outdir}/log/merged/{sample}_error.log"
     params:
@@ -82,25 +77,25 @@ rule merge_reads:
 #rule calculate_EE:
 #    input:
 #        "{outdir}/merged/{sample}_merged_reads.fq"
-#    output:
+#   output:
 #        "{outdir}/qual_filter/{sample}_EE_report.txt"
-#    log:
+#   log:
 #        "{outdir}/log/qual_filter/{sample}_EE_error.log"
 #    shell:
 #        "./deps/usearch11 -fastx_info {input} -output {output} 2>{log}"
 
 ### Rule checks if the user provided an EE threshold, if not it uses the mean value ###
 ### calculated by the previous rule ###
-### Old: report="{outdir}/qual_filter/{sample}_EE_report.txt" ###
-### functions.determineEE(wildcards,config) ###
+### Legacy:         report="{outdir}/qual_filter/{sample}_EE_report.txt" ###
 rule qual_filter:
     input:
         reads="{outdir}/merged/{sample}_merged_reads.fq",
     output:
-        "{outdir}/qual_filter/{sample}_filtered_reads.fa"
+        temp("{outdir}/qual_filter/{sample}_filtered_reads.fa")
     log:
         "{outdir}/log/qual_filter/{sample}_error.log"
     run:
+        #max_EE = functions.determineEE(wildcards,config)
         max_EE = 1
         shellstring="./deps/usearch11 -fastq_filter {input.reads} -fastq_maxee %s -fastaout {output} -relabel Filt 2> {log}"%max_EE
         shell(shellstring)
@@ -111,7 +106,7 @@ rule dereplicate:
     input:
         "{outdir}/qual_filter/{sample}_filtered_reads.fa"
     output:
-        "{outdir}/dereplicated/{sample}_dereplicated_reads.fa"
+        temp("{outdir}/dereplicated/{sample}_dereplicated_reads.fa")
     log:
         "{outdir}/log/dereplicate/{sample}_error.log"
     shell:
@@ -122,7 +117,7 @@ rule discard_singletons:
 	input:
 		"{outdir}/dereplicated/{sample}_dereplicated_reads.fa"
 	output:
-		"{outdir}/dereplicated/{sample}_desingled_reads.fa"
+		temp("{outdir}/dereplicated/{sample}_desingled_reads.fa")
 	log:
 		"{outdir}/log/discard_singletons/{sample}_error.log"
 	shell:
@@ -179,8 +174,13 @@ rule filter_contamination_filter:
         "{outdir}/FINAL/{sample}_zotus_final.fa"
     log:
         '{outdir}/log/contamination/{sample}_error.log'
+    params:
+         outputdir="{outdir}"
     shell:
-        "bash excludeContamination.sh {input} {outdir}/BLAST/{wildcards.sample}_blast.txt {output}"
+        """
+        mkdir {wildcards.outdir}/BLAST/
+        bash excludeContamination.sh {input} {wildcards.outdir}/BLAST/{wildcards.sample}_blast.txt {output}
+        """
 
 
 rule filter_zotutab:
