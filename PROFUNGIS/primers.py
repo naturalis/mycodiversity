@@ -29,9 +29,10 @@ class Primer:
 				return False, "Sequence invalid"
 		if name in self.primerdict:
 			return False, "Name already present"
-		present_primers = list(self.primerdict.values())
+		present_primers = [x[0] for x in self.primerdict.values()]
 		if primer in present_primers:
-			return False, "Primer already present"
+			present = list(self.primerdict)[present_primers.index(primer)]
+			return False, "Primer already present ({primer})".format(primer=present)
 		if len(primer) < 6:
 			return False, "Primer too short, please add a sequence of >6 bases"
 
