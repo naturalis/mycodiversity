@@ -22,7 +22,7 @@ class Primer:
 		return primerdict
 
 	def check_input(self, name, primer, fragment):
-		goodchars = ['A','C','G','T','R','Y','W','D','S','B','V','K','H']
+		goodchars = ['A','C','G','T','R','Y','W','D','S','B','V','K','H','M']
 		goodfrags = ['its1','its2']
 		for char in primer:
 			if char not in goodchars:
