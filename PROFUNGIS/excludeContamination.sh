@@ -6,7 +6,7 @@ OUTZOTU=${3}
 
 
 # A BLAST against the UNITE database is performed, minimal identity is 70%
-blastn -query ${ZOTUS} -db ./deps/Unite/unite -outfmt 6 -out ${OUTPUT} -perc_identity 70 -max_target_seqs 10
+blastn -query ${ZOTUS} -db ./deps/Unite/unite -outfmt 6 -out ${OUTPUT} -perc_identity 70 -max_target_seqs 3
 
 # All hits without kingdom: Fungus are selected and stored as contamination
 egrep "k__[^F]" ${OUTPUT} | cut -f 1 | sort | uniq > names_contam.tmp
