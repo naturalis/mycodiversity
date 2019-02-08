@@ -1,16 +1,15 @@
 #!/bin/bash
 
 R1=${1}
-
+basename_R1=$(basename ${R1} .fastq)
+basename_R2=$(basename ${R2} .fastq)
 sample_name=$(basename ${R1} _R1_filt.fastq)
-
 R2=${2}
-
 total_reads=$(egrep -c "@S" ${R1})
 
 ### Step 1: do trimmomatic to see if the R2 is worse than R1 ###
 java -jar ./deps/trimmomatic.jar SE "${R1}" "${sample_name}_trimmed_1.fastq" SLIDINGWINDOW:4:20 MINLEN:100 2>>log.txt
-unfiltered_R1=$(egrep -c "@S" ${sample_name}_trimmed_1.fastq)
+unfiltered_R1=$(egrep -c "@S" ${sample_name}_trimmed_1.fastq) 
 java -jar ./deps/trimmomatic.jar SE "${R2}" "${sample_name}_trimmed_2.fastq" SLIDINGWINDOW:4:20 MINLEN:100 2>>log.txt
 unfiltered_R2=$(egrep -c "@S" ${sample_name}_trimmed_2.fastq)
 
@@ -21,7 +20,7 @@ merged_reads=$(egrep -c "@S" ${sample_name}_merged.fastq)
 ### Step 3: do trimmomatic on the merged Fastq to see how much gets discarded when merged ###
 java -jar ./deps/Trimmomatic/trimmomatic.jar SE "${sample_name}_merged.fastq" "${sample_name}_merged_trimmed.fastq" SLIDINGWINDOW:4:20 MINLEN:10 2>>log.txt
 unfiltered_merged=$(egrep -c "@S" ${sample_name}_merged_trimmed.fastq)
-
+#echo "after merging and trimming, ${unfiltered_merged} reads remained"
 
 
 ### Step 4: make a decision ###
@@ -65,19 +64,18 @@ fi
 # after merging and x and y are the R1 and R2 percentages. In other  #
 # words: is it less than the average of R1 and R2					 #
 a=$((${unfiltered_merged}*2))
+#echo $((${a})), $((${unfiltered_R1}+ ${unfiltered_R2}))
 if [ ${a} -lt $((${unfiltered_R1} + ${unfiltered_R2})) ]; then
 mergefilterflag2=1
 fi
-
-# All flags are summed. If more than 2 flags are 1 (more than 2 faults) #
-# Only the forward reads are used and the reverse reads are discarded   #
+#echo "${pairdiff}, ${filterflag}, ${mergeflag}, ${mergefilterflag}, ${mergefilterflag2}"
 decision=$((${pairdiff}+${filterflag}+${mergeflag}+${mergefilterflag}+${mergefilterflag2}))
 if [ ${decision} -gt 2 ]; then
 echo "FWD"
 else echo "MERGE"
 fi
 
-# Remove junk #
+
 rm "${sample_name}_trimmed_1.fastq"
 rm "${sample_name}_trimmed_2.fastq"
 rm "${sample_name}_merged.fastq"

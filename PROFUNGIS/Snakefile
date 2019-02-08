@@ -14,10 +14,10 @@ rule filter_primers:
     input:
         lambda wildcards: functions.getReads(config["samples"][wildcards.sample],config["params"]["platform"],1)
     params:
-        FWD=lambda wildcards: config["primers"]["FWD"], #Forward reads
-        REV=lambda wildcards: config["primers"]["REV"], # Reverse reads
-        FWD_RC=functions.getRevComp(config["primers"]["FWD"]), #Forward revcomp
-        REV_RC=functions.getRevComp(config["primers"]["REV"]), #Reverse revcomp
+        FWD=lambda wildcards: config["primers"]["FWD"],
+        REV=lambda wildcards: config["primers"]["REV"], # REVCOMP!!
+        FWD_RC=functions.getRevComp(config["primers"]["FWD"]),
+        REV_RC=functions.getRevComp(config["primers"]["REV"]),
         minlen=functions.changeDefault(config, "cutadapt_minlen","-m 100"),
         platform=lambda wildcards: config["params"]["platform"],
         reversereads=lambda wildcards: functions.getReads(config["samples"][wildcards.sample],config["params"]["platform"],2)
@@ -27,7 +27,7 @@ rule filter_primers:
     log:
         "{outdir}/log/filter_primers/{sample}_error.log"
     run:
-        # Run cutadapt to remove primers. Command depends on platform
+        print({params.platform}, params.platform)
         if params.platform == "illumina":
             shell("cutadapt -g {params.FWD} -a {params.REV_RC} -G {params.REV} -A {params.FWD_RC} -o {output.R1_out} {params.minlen} \
 				  -p {output.R2_out} --discard-untrimmed --pair-filter=both {input} {params.reversereads} 2>{log}")
@@ -42,31 +42,29 @@ rule filter_primers:
 
 rule merge_reads:
     input:
-        R1="{outdir}/filtered/{sample}_R1_filt.fastq", # Output of cutadapt
+        R1="{outdir}/filtered/{sample}_R1_filt.fastq",
     output:
-        temp("{outdir}/merged/{sample}_merged_reads.fq") # Temporary output
+        temp("{outdir}/merged/{sample}_merged_reads.fq")
     log:
         "{outdir}/log/merged/{sample}_error.log"
     params:
-        min_overlap=functions.changeDefault(config, "flash_min_overlap"),
+        min_overlap=functions.changeDefault(config, "flash_min_overlap"), # optional param (but might to set a default later //TODO)
         platform=config["params"]["platform"],
         amplicon=config["primers"]["amplicon"],
         outdir=config["outdir"],
-        revreads="{outdir}/filtered/{sample}_R2_filt.fastq" # Gives empty string if not existing
+        revreads="{outdir}/filtered/{sample}_R2_filt.fastq"
     run:
-        # Runs flash to merge reads
         if params.platform == "illumina":
             mergebool= functions.decideMerger(wildcards.sample, wildcards.outdir)
-            if "MERGE" in mergebool: # If merger script gives green light
+            if "MERGE" in mergebool:
                 shellstring = "flash {input_r1} {input_r2} -c > {output} {overlap} -M 250 2>{log}".format(input_r1=input.R1, input_r2 = params.revreads, output=output, overlap=params.min_overlap, log=log)
+                #shell("flash {input.R1} revreads -c > {output} {params.min_overlap} -M 250 2>{log}")		
+                print(shellstring)
                 shell(shellstring)
             elif "FWD" in mergebool:
                 print("Your reverse reads are bad, I will only use your forward reads\nPlease note that the file name will still be 'merged' (\\\TODO v.03)")
                 shell("cp {input.R1} {output}")
                 shell("echo Your reverse reads were not used, no merging was done. Please see the documentation for more information > {log}")
-        # if pyrosequencer is used, reads can't be merged
-        # In stead of merging, amplicons with only ITS1 or ITS2 will be
-        # Truncated to 250bp
         else:
             if params.amplicon != "Full":
                 print("Going to truncate")
@@ -91,19 +89,19 @@ rule merge_reads:
 ### Legacy:         report="{outdir}/qual_filter/{sample}_EE_report.txt" ###
 rule qual_filter:
     input:
-        reads="{outdir}/merged/{sample}_merged_reads.fq", # named merged even if not merged
+        reads="{outdir}/merged/{sample}_merged_reads.fq",
     output:
-        temp("{outdir}/qual_filter/{sample}_filtered_reads.fa") #Temporary output file
+        temp("{outdir}/qual_filter/{sample}_filtered_reads.fa")
     log:
         "{outdir}/log/qual_filter/{sample}_error.log"
     run:
         #max_EE = functions.determineEE(wildcards,config)
-        max_EE = 1 ## MAX EE IS FIXED TO 1.0 IN THIS VERSION
+        max_EE = 1
         shellstring="./deps/usearch11 -fastq_filter {input.reads} -fastq_maxee %s -fastaout {output} -relabel Filt 2> {log}"%max_EE
         shell(shellstring)
 
 
-### Rule calls the dereplication function of VSEARCH (not USEARCH due to the 32-bit restrictions) ###
+### Rule calls the dereplication function of VSEARCH (not USEARCH due to the 32-bit restrictions) ### 
 rule dereplicate:
     input:
         "{outdir}/qual_filter/{sample}_filtered_reads.fa"
@@ -134,7 +132,7 @@ rule denoise:
     log:
         "{outdir}/log/denoise/{sample}_error.log"
     params:
-        unoise_alpha=functions.changeDefault(config, "unoise_alpha") # PARAM NOT CHANGEABLE, STATIC AT 2
+        unoise_alpha=functions.changeDefault(config, "unoise_alpha") # optional param
     shell:
         "./deps/usearch11 -unoise3 {input} -zotus {output} -unoise_alpha 2 -minsize 2 2> {log}"
 
@@ -164,7 +162,7 @@ rule abundance_filter:
        "{outdir}/log/abundance/{sample}_error.log"
     run:
        shell("python abundance_filter.py {input.zotutab} {output.af_zotutab} {output.intermediate} 0.005 2>{log}")
-       shell("./deps/faSomeRecords {input.zotus} {output.intermediate} {output.af_zotus} 2>>{log}")
+       shell("./deps/faSomeRecords {input.zotus} {output.intermediate} {output.af_zotus} 2>>{log}") 
 
 ### Rule calls the contamination filtering script. This blasts the ZOTUS against the UNITE ###
 ### database and selects only the ZOTUS that 1) have a hit in UNITE and 2) are matched with###
