@@ -3,7 +3,7 @@ import sys
 
 def numSeqs(file):
 	"""\
-	Function determines the number of sequences in the input file
+	Function determines the number of sequences in the input file using egrep
 	"""
 	file = str(file[0])
 	proc=subprocess.Popen("egrep -c '>' %s"%(file), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -13,7 +13,7 @@ def numSeqs(file):
 	return(int(numseqs))
 
 def getReads(sample, platform,orient):
-	"""\ 
+	"""\
 	Function determines whether or not the sample has a reverse read file.
 	If the platform is illumina, the reads are returned. If the platform
 	is a pyrosequencer, there is no reverse read file, and the only file is returned.
@@ -28,11 +28,15 @@ def getReads(sample, platform,orient):
 
 def getRevComp(primer):
 	"""\
-	Function determines the reverse complement of a string. The complement dictionary
-	contains all possibilities of bases/wildcards and their complement.
+	Function determines the reverse complement of a string. The complement
+	dictionary contains all possibilities of bases/wildcards and their
+	complement.
 	"""
-	complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'R':'Y','Y':'R', 'S':'S', 'W':'W', 'K':'M','B':'T','V':'B', 'D':'H','H':'D'}
-	reverse_complement = "".join(complement.get(base, base) for base in reversed(primer))
+	complement = {'A': 'T', 'C': 'G', 'G': 'C', 'T': 'A', 'R':'Y','Y':'R',
+				  'S':'S', 'W':'W', 'K':'M','B':'T','V':'B', 'D':'H','H':'D'}
+	reverse_complement = "".join(
+		complement.get(base, base) for base in reversed(primer)
+		)
 	return(reverse_complement)
 
 def changeDefault(config, param, default=""):
@@ -45,9 +49,11 @@ def changeDefault(config, param, default=""):
     """
     try:
         if default == "":
-            outstring="%s %s"%(config["params"][param]["flag"],config["params"][param]["value"])
+            outstring="%s %s"%(config["params"][param]["flag"],
+			config["params"][param]["value"])
         else:
-            outstring="%s %s"%(config["params"][param]["flag"],config["params"][param]["value"])
+            outstring="%s %s"%(config["params"][param]["flag"],
+			config["params"][param]["value"])
         return(outstring)
     except KeyError:
         return(default)
@@ -57,12 +63,14 @@ def determineEE(wildcards, config):
 	"""\
 	Function determines the calculated Estimated Error (EE) scores
 	calculated by UNOISE. It first checks if there is a value entered
-	in thee config file. If not, the output of UNOISE is parsed
-	to a dictionary containing all EE stats. By default, 
+	in the config file. If not, the output of UNOISE is parsed
+	to a dictionary containing all EE stats. By default,
 	the function returns the mean value but, this can be
 	altered to be the other values provided by UNOISE.
 	If the config file contains an entry for max_EE,
 	this value is chosen and the user is informed so.
+		This function is currently unused as the default value is automatically
+		used (EE = 1.0)
 	"""
 	STAT='mean' # CHANGE ME
 	value= changeDefault(config, "usearch_max_EE", "not set")
@@ -81,13 +89,15 @@ def determineEE(wildcards, config):
 
 def decideMerger(sample, outdir):
     """\
-    Function evaluates the decideMerger script (which seems impossible to do elsewise).
-    The forward and reverse samples are determined, and the script is called with these read files.
-    The output of that script is parsed to subprocess.PIPE and this is parsed into a string that is returned.
+    Function evaluates the decideMerger script. The forward and reverse samples
+	are determined, and the script is called with these read files.
+	The output of that script is parsed to subprocess.PIPE and this is parsed
+	into a string that is returned.
     """
     fwd="%s/filtered/%s_R1_filt.fastq"%(outdir, sample)
     rev="%s/filtered/%s_R2_filt.fastq"%(outdir, sample)
-    proc=subprocess.Popen("bash decideMerger.sh %s %s"%(fwd,rev) , shell=True,  stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    proc=subprocess.Popen("bash decideMerger.sh %s %s"%(fwd,rev) , shell=True,
+						   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     decision = proc.communicate()
     decision = decision[0].decode("utf-8").strip("\n")
     print(decision)
