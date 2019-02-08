@@ -21,7 +21,7 @@ def normalize(platform):
         return platform
     else:
         print("Platform was not recognized",
-              "Please provide either 454, iontorrent or illumina (v0.10)")
+              "Please provide either 454, iontorrent or illumina")
         sys.exit()
 
 def paramparser():
@@ -30,14 +30,14 @@ def paramparser():
     and a list with the present optional parameters.
     """
     parser = argparse.ArgumentParser()
-    # An SRA or a file with SRA ID's is required, but only one 
+    # An SRA or a file with SRA ID's is required, but only one
     id_group = parser.add_mutually_exclusive_group(required=True)
     id_group.add_argument("-m","--multirun", help="Provide file with SRA ids")
     id_group.add_argument("-s","--SRA", type=str, help="Single SRA id")
 
     parser.add_argument("-f","--forward", required=True, help="Name of forward primer")
     parser.add_argument("-r","--reverse", required=True, help="Name of reverse primer")
-    parser.add_argument("-p","--platform",required=True, help="Sequencing platform [illumina|454]")
+    parser.add_argument("-p","--platform",required=True, help="Sequencing platform [illumina|454|iontorrent]")
     parser.add_argument("-l","--local", action="store_true", help="disable SRA downloading, run local")
     # Max Estimated Error for the USEARCH quality filte
     parser.add_argument("-E","--maxEE",help="Estimated Error (EE) filter threshold")
@@ -59,7 +59,7 @@ def check_existence(sra_idlist, platform):
     """\
     Function checks if all read files are present in order to run locally
     If the files (or one of the files for illumina) are missing, the pipeline
-    will terminate 
+    will terminate
     """
     errorcount=0
     for id in sra_idlist:
@@ -80,7 +80,7 @@ def check_existence(sra_idlist, platform):
 def check_amplicon(frag1, frag2):
     """\
     Function checks, based on the primers, which part is sequenced.
-    If the target region of the fwd and rev primers are the same, that 
+    If the target region of the fwd and rev primers are the same, that
     region is used. If they are not the same, the target region is full-length
     ITS. Unless the reverse primer is for ITS1 and the fwd primer is for ITS2,
     which wouldn't be possible, so an error is raised and the pipeline is terminated
@@ -98,17 +98,19 @@ def obtain_primer(primername, primerobject):
     """\
     The script tries to get the sequence attached with the given primer name
     If this name is not present in the primer dataset, the user gets asked
-    to add it to the dataset itself via input. 
+    to add it to the dataset itself via input.
     Next, the user is asked which part of ITS this primer amplifies.
     The primer sequence is returned.
     """
     primersequence = primerobject.get_primer(primername)
 
     if not primersequence:
-        print("Primer {primer} has not yet been used. Please add it if you want to use it".format(primer=primername))
+        print("Primer {primer} has not yet been used. Please add it if you want\
+        to use it".format(primer=primername))
         while True:
             new = input("Input the primer sequence and press enter: ")
-            new_frag= input("Input the target sequence of this primer and press enter (ITS1, ITS2): ")
+            new_frag= input("Input the target sequence of this primer and press\
+             enter (ITS1, ITS2): ")
             proper, message = primerobject.add_primer(primername, new, new_frag)
             if not proper:
                 print(message)
@@ -123,7 +125,7 @@ def obtain_primer(primername, primerobject):
 def create_config(fwd, rev, sra_id, paramlist, outdir ,amplicon):
     """\
     Function creates a yml config file for snakemake. It makes a
-    section with all samples, a section with primers and an optional 
+    section with all samples, a section with primers and an optional
     section for optional parameters.
     """
     samplestring="samples:\n"
