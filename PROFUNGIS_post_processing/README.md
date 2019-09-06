@@ -91,24 +91,21 @@ update_ref_map.py
 ###OUTPUTS
 
 - generate_zotu_ref1.py -> ZOTU reference file with extended annotation
-	outputs:
-	mapping_table_pk_zotu_srr.csv -> traces the mapping of the original Fasta Label to assigned PK
-	otu_seq_mapping_to_update.csv -> a simple reference ZOTU table generated from the given FASTA
-	record_track.csv -> tracker of how many reference ZOTUs have been generated
-	refseq_table_pk.csv -> the ZOTU list with extended annotation used as reference
 
->doi_pmid_sra.csv -> contains the mappings and links from article, pubmed and sra
->Profungis_accession_list.txt -> the input file requested for PROFUNGIS pipeline is generated. It contains the sequence run accession list of the raw fastq files.
->SRA_object_mapping.csv -> very useful file which contains all possible sra object mappings associated with a study (SRA, SRP, SRS, SRR, SRX, BioSample and BioProject)
->SRA_sample_metadata.csv -> the sample metadata associated with the sample collected
->SRA_submission_meta.csv -> the metadata associated with the SRA submission record
+	outputs:
+	>mapping_table_pk_zotu_srr.csv -> traces the mapping of the original Fasta Label to assigned PK
+	>otu_seq_mapping_to_update.csv -> a simple reference ZOTU table generated from the given FASTA
+	>record_track.csv -> tracker of how many reference ZOTUs have been generated
+	>refseq_table_pk.csv -> the ZOTU list with extended annotation used as reference
+
 
 - update_ref_map.py -> update ZOTU reference table and mappings
+	
 	outputs:
-	mapping_table_pk_zotu_srr.csv -> updates the mapping table of the original Fasta Label to assigned PK or to new PK generated if not found
-	otu_seq_mapping_to_update.csv -> provides the table format of the new ZOTUs coming in for update
-	record_track.csv -> updates the tracker of how many reference ZOTUs have been generated from the new FASTA
-	refseq_table_pk.csv -> the updated ZOTU list with new PK generated if new ZOTU was detected
+	>mapping_table_pk_zotu_srr.csv -> updates the mapping table of the original Fasta Label to assigned PK or to new PK generated if not found
+	>otu_seq_mapping_to_update.csv -> provides the table format of the new ZOTUs coming in for update
+	>record_track.csv -> updates the tracker of how many reference ZOTUs have been generated from the new FASTA
+	>refseq_table_pk.csv -> the updated ZOTU list with new PK generated if new ZOTU was detected
 
 
 
