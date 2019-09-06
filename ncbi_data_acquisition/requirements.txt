@@ -1,0 +1,7 @@
+requests
+Bio
+bs4
+pandas
+csv
+re
+numpy
