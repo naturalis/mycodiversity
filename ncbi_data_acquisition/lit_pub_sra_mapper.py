@@ -138,7 +138,7 @@ def doi_ncbi_pmid_converter_connector(art_doi):
 	"""
 	Request NCBI call and fetch items 'pmid' and article 'title' (faster)
 	"""
-	ncbi_account = na.ncbi_access1["account"]
+	ncbi_account = os.getenv("NCBI_ACCOUNT", na.ncbi_access1["account"])
 	ncbi_sic_path =  na.ncbi_pmid_request["ncbi_pmid_api_converter"]
 	ncbi_access_path = na.ncbi_pmid_request["ncbi_tool_path"]
 	doi_link = "http://dx.doi.org/"
@@ -151,9 +151,10 @@ def doi_ncbi_pmid_converter_connector(art_doi):
 	try:
 		os.mkdir(output_dir)
 	except OSError as exc_dir:
-		print "Warning: path output name <OutputResults> already exists"
-		print "Please change it and launch again"
-		raise SystemExit
+		if any(f for f in os.listdir(output_dir) if not f.startswith('.')):
+			print "Warning: path output name <OutputResults> already exists with contents"
+			print "Please change it and launch again"
+			raise SystemExit
 	
 	article_link = doi_link + art_doi
 	"""
@@ -276,7 +277,7 @@ def pmid_sra_connector(pubmed_id):
 	"""
 	here I try to slurp the pubmed article and see if I can manage to find the sequence id
 	"""
-	ncbi_account = na.ncbi_access1["account"]
+	ncbi_account = os.getenv("NCBI_ACCOUNT", na.ncbi_access1["account"])
 	sample_metadata_list = ""
 	pubmed_record = handle_article_data_element(ncbi_account, pubmed_id)
 	for element_value in pubmed_record:
