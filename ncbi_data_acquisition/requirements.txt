@@ -3,4 +3,4 @@ beautifulsoup4==4.8.0
 numpy==1.13.0
 pandas==0.20.2
 biopython==1.70
-lxml==4.4.1
+lxml==4.6.3
