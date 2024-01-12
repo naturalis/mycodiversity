@@ -18,8 +18,7 @@ from itertools import islice
 __author__ = "airini"
 
 """
-v25k: this version contains: retrieve and fetch data from PubMed, SRA, SRP, SRS, SRX and BioSample
-consider to process SRX data -> fetch specific attributes -> exp name, primers and design, retrieve only unique values found in these att
+version reference v25k: desc this version contains: retrieve and fetch data from PubMed, SRA, SRP, SRS, SRX and BioSample
 """
 
 
