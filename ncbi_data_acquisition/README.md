@@ -1,11 +1,11 @@
 # ncbi_data_acquisition
 retrieving NCBI PubMed, SRA mappings and sample metadata associated to a scientific publication
 
-# lit_pub_sra_mapper.py
+## lit_pub_sra_mapper.py
 Literature PubMed SRA mapper 
 The lit_pub_sra_mapper has been created to requesting data from the NCBI databases Pubmed and SRA.
 It provides all the mappings associated to:
-- a scientific article (DOI), 
+- a scientific article (**DOI**), 
 - the reference NCBI PubMed record 
 - cross reference mapping to NCBI SRA. 
 It also provides a SRA object mapping to SRS (Samples), SRR (Sequence Run) and SRX (Sequence Experiment), NCBI BioProject and BioSample database mappings. 
@@ -21,7 +21,7 @@ In this case, all the previous outputs and mappings are still provided, except f
   launch the script followed by a DOI
   >python lit_pub_sra_mapper.py <DOI>
 	
-  ex: python lit_pub_sra_mapper.py 10.1126/science.1256688
+  *ex: **python lit_pub_sra_mapper.py 10.1126/science.1256688***
 
 ### Configuration 
 
@@ -52,7 +52,7 @@ CASE4:
 
 	DOI is able to retrieve data with the NCBI DOI - PMID converter, and PubMed record provides the sequence source
 
-#Examples to use with the 4 Cases
+# Examples to use with the 4 Cases
 
 CASE1:
 
@@ -71,6 +71,7 @@ SRP: SRP015917
 
 
 CASE4:
+
 DOI: 10.1073/pnas.1508382112
 SRP:  SRP052716
 
@@ -78,7 +79,7 @@ SRP:  SRP052716
 For CASE1 and CASE3, the script retrieves data automatically, without the need to wait for an input information from user
 For CASE2 and CASE4, the user will need to provide the SRA accession manually in order to continue with all the mappings and metadata retrieval
 
-###MAPPING PIPELINE METHODS
+### MAPPING PIPELINE METHODS
 
 doi_ncbi_pmid_converter_connector : will request and retrieve PubMed elements by using the NCBI and EBI API
 
@@ -87,19 +88,19 @@ pmid_sra_connector : will retrieve data from sra by using the PubMed elements
 sra_biosample_connector : the cross reference sra biosample will retrieve the sample metadata associated with the SRA study
 
 
-###OUTPUTS
+### OUTPUTS
 
-The following mapping files and outputs will be generated 
+The following mapping files and outputs will be generated : 
 
->doi_pmid_sra.csv -> contains the mappings and links from article, pubmed and sra
+	> doi_pmid_sra.csv -> contains the mappings and links from article, pubmed and sra
 
->Profungis_accession_list.txt -> the input file requested for PROFUNGIS pipeline is generated. It contains the sequence run accession list of the raw fastq files.
+	> Profungis_accession_list.txt -> the input file requested for PROFUNGIS pipeline is generated. It contains the sequence run accession list of the raw fastq files.
 
->SRA_object_mapping.csv -> very useful file which contains all possible sra object mappings associated with a study (SRA, SRP, SRS, SRR, SRX, BioSample and BioProject)
+	> SRA_object_mapping.csv -> very useful file which contains all possible sra object mappings associated with a study (SRA, SRP, SRS, SRR, SRX, BioSample and BioProject)
 
->SRA_sample_metadata.csv -> the sample metadata associated with the sample collected
+	> SRA_sample_metadata.csv -> the sample metadata associated with the sample collected
 
->SRA_submission_meta.csv -> the metadata associated with the SRA submission record
+	> SRA_submission_meta.csv -> the metadata associated with the SRA submission record
 
 
 
