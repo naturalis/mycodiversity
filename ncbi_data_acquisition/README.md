@@ -1,15 +1,17 @@
-# ncbi_data_acquisition
-retrieving NCBI PubMed, SRA mappings and sample metadata associated to a scientific publication
+# ncbi_data_acquisition pipeline
 
-## lit_pub_sra_mapper.py
+- description: retrieving NCBI PubMed, SRA mappings and sample metadata associated to a scientific publication
+
+# ⭐ how lit_pub_sra_mapper.py works
+
 Literature PubMed SRA mapper 
-The lit_pub_sra_mapper has been created to requesting data from the NCBI databases Pubmed and SRA.
-It provides all the mappings associated to:
-- a scientific article (**DOI**), 
-- the reference NCBI PubMed record 
-- cross reference mapping to NCBI SRA. 
-It also provides a SRA object mapping to SRS (Samples), SRR (Sequence Run) and SRX (Sequence Experiment), NCBI BioProject and BioSample database mappings. 
-It additionally downloads all the metadata associated to the SRA sample(s).
+The lit_pub_sra_mapper has been created to requesting and fetching data from the NCBI databases Pubmed and SRA.
+The scripts also allows to map literature sources to the PubMed and SRA databases creating the data relation used for MDDB. The mapping corresponds to:
+- the scientific article (**DOI**), 
+- the reference NCBI PubMed record (**PMID**)
+- cross reference mapping to NCBI SRA. (**SRA ID**)
+It also then provides the SRA object mapping to SRS (Samples), SRR (Sequence Run) and SRX (Sequence Experiment), NCBI BioProject and BioSample database mappings. 
+And finally, it completes the process byadditionally downloads all the metadata associated to the SRA sample(s).
 
 The lit_pub_sra_mapper.py retrieves data automatically as long as data is provided in the given repository requests.
 lit_pub_sra_mapper.py will only 'request' help from the user when it is not able to localize any sequence source (SRA) in the PubMed record.
@@ -17,16 +19,28 @@ In this case, the user has the opporturnity to help, thus provide the SRA access
 The user is also able to terminate at this stage, thus not provide the information requested. 
 In this case, all the previous outputs and mappings are still provided, except for the SRA data. 
 
-## How to run lit_pub_sra_mapper.py
+## 🗒️ How to run lit_pub_sra_mapper.py
+
   launch the script followed by a DOI
-  >python lit_pub_sra_mapper.py <DOI>
+  
+  	
+	>python3 lit_pub_sra_mapper.py <DOI>
 	
-  *ex: **python lit_pub_sra_mapper.py 10.1126/science.1256688***
+	
+  for example: 
+  
+  
+    >python3 lit_pub_sra_mapper.py 10.1126/science.1256688
+	
+
+where 10.1126/science.1256688 is the DOI not in a url format
+
 
 ### Configuration 
 
  - provide in the conf_lit.py file your personal NCBI account (ncbi_access["account"]) and save file
- - please follow the information 'API key management' of the NCBI link:"https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/"
+ - please follow the information 'API key management' of the NCBI link:
+   *[https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/](https://ncbiinsights.ncbi.nlm.nih.gov/2017/11/02/new-api-keys-for-the-e-utilities/)*
  
 ### Requirements
 
@@ -103,6 +117,7 @@ The following mapping files and outputs will be generated :
 	> SRA_submission_meta.csv -> the metadata associated with the SRA submission record
 
 
-
+> [!NOTE]
+> this work is related to other mddb data collection methods, please check [repo](https://github.com/imartorelli/mddb-data-acquisition-methods)
 
 
